@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "@fontsource-variable/outfit";
+@import "./theme/themes/devcon.css";
+@import "./theme/theme.css";
+@import "./theme/base.css";
+
+@keyframes land {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) rotate(-6deg) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-2deg) scale(1);
+  }
+}
+
+@utility animate-land {
+  animation: land 600ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}

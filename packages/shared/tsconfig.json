@@ -1,0 +1,4 @@
+{
+  "extends": "@vegaos-demo/tsconfig/base.json",
+  "include": ["src"]
+}

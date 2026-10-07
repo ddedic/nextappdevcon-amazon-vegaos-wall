@@ -1,0 +1,31 @@
+/* Token contract: Tailwind utilities map to --u-* variables only (no literals). */
+@theme {
+  --color-*: initial;
+  --color-canvas: var(--u-canvas);
+  --color-surface: var(--u-surface);
+  --color-surface-strong: var(--u-surface-strong);
+  --color-line: var(--u-line);
+  --color-ink: var(--u-ink);
+  --color-ink-muted: var(--u-ink-muted);
+  --color-ink-subtle: var(--u-ink-subtle);
+  --color-ink-inverse: var(--u-ink-inverse);
+  --color-pink: var(--u-pink);
+  --color-blue: var(--u-blue);
+  --color-violet: var(--u-violet);
+  --color-success: var(--u-success);
+  --color-danger: var(--u-danger);
+  --color-paper: var(--u-paper);
+  --color-paper-ink: var(--u-paper-ink);
+
+  --font-*: initial;
+  --font-sans: var(--u-font-sans);
+
+  --radius-*: initial;
+  --radius-control: var(--u-radius-control);
+  --radius-card: var(--u-radius-card);
+  --radius-pill: var(--u-radius-pill);
+
+  --shadow-*: initial;
+  --shadow-glow: var(--u-shadow-glow);
+  --shadow-paper: var(--u-shadow-paper);
+}

@@ -1,0 +1,243 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import type { Db } from "@/db/client";
+import type { PhotoRow } from "@/db/schema";
+import { photoRepo } from "@/modules/photo/data/photo.repo";
+import { photoStorageRepo } from "@/modules/photo/data/photo-storage.repo";
+
+import {
+  PHOTO_DELETE_FORBIDDEN,
+  PHOTO_DIMENSIONS_TOO_LARGE,
+  PHOTO_NOT_FOUND,
+  PHOTO_RATE_LIMITED,
+  PHOTO_UNSUPPORTED_TYPE,
+  PHOTO_WALL_BUSY,
+} from "./photo.errors";
+import { photoService } from "./photo.service";
+import type { PhotoDeps } from "./photo.types";
+
+const now = new Date("2026-10-07T12:00:00.000Z");
+
+const makeDeps = () => {
+  const broadcast = vi.fn().mockResolvedValue(undefined);
+  const deps: PhotoDeps = {
+    db: {} as Db,
+    bucket: {} as R2Bucket,
+    wall: { broadcast },
+    origin: "https://api.test",
+    signingKey: "test-signing-key",
+    now: () => now,
+  };
+  return { deps, broadcast };
+};
+
+/** Just enough JPEG for the header checks: SOI, then a frame header with the size. */
+const jpeg = (width = 1080, height = 810) =>
+  new File(
+    [
+      new Uint8Array([
+        0xff,
+        0xd8,
+        0xff,
+        0xe0,
+        0x00,
+        0x04,
+        0x00,
+        0x00,
+        0xff,
+        0xc0,
+        0x00,
+        0x11,
+        0x08,
+        height >> 8,
+        height & 0xff,
+        width >> 8,
+        width & 0xff,
+        0x03,
+        ...Array(12).fill(0),
+      ]),
+    ],
+    "me.jpg",
+    { type: "image/jpeg" },
+  );
+
+const row = (overrides: Partial<PhotoRow> = {}): PhotoRow => ({
+  id: "6f1c6c1e-9f7a-4c34-9a55-0d9ef4a1d001",
+  caption: "Hi Berlin",
+  tribe: "reactcon",
+  status: "approved",
+  objectKey: "photos/x",
+  contentType: "image/jpeg",
+  ipHash: "h",
+  deleteTokenHash: "not-a-real-hash",
+  createdAt: now,
+  approvedAt: now,
+  removedAt: null,
+  ...overrides,
+});
+
+/** Every limit has room unless a test says otherwise. */
+const underLimits = () => {
+  vi.spyOn(photoRepo, "countRecentByIpHash").mockResolvedValue(0);
+  vi.spyOn(photoRepo, "countPending").mockResolvedValue(0);
+  vi.spyOn(photoRepo, "countCreatedSince").mockResolvedValue(0);
+};
+
+afterEach(() => vi.restoreAllMocks());
+
+describe("photoService.upload", () => {
+  it("stores the image and saves a pending row without touching the wall", async () => {
+    const { deps, broadcast } = makeDeps();
+    underLimits();
+    const put = vi.spyOn(photoStorageRepo, "put").mockResolvedValue();
+    vi.spyOn(photoRepo, "create").mockImplementation(async (_db, values) =>
+      row(values as PhotoRow),
+    );
+    vi.spyOn(photoRepo, "countApprovedByTribe").mockResolvedValue([
+      { tribe: "reactcon", value: 1 },
+    ]);
+
+    const result = await photoService.upload(deps, {
+      image: jpeg(),
+      caption: "Hi Berlin",
+      tribe: "reactcon",
+      clientIp: "1.2.3.4",
+    });
+
+    expect(put).toHaveBeenCalledOnce();
+    expect(result.deleteToken).toMatch(/^[0-9a-f]{48}$/);
+    expect(result.photo.imageUrl).toBe(`https://api.test/photos/${result.photo.id}/image`);
+    expect(result.photo.status).toBe("pending");
+    expect(broadcast).not.toHaveBeenCalled();
+  });
+
+  it("rejects uploads over the per-client burst limit without storing anything", async () => {
+    const { deps } = makeDeps();
+    vi.spyOn(photoRepo, "countRecentByIpHash").mockResolvedValue(60);
+    const put = vi.spyOn(photoStorageRepo, "put");
+
+    await expect(
+      photoService.upload(deps, {
+        image: jpeg(),
+        caption: null,
+        tribe: "other",
+        clientIp: "1.2.3.4",
+      }),
+    ).rejects.toMatchObject({ code: PHOTO_RATE_LIMITED, status: 429 });
+    expect(put).not.toHaveBeenCalled();
+  });
+
+  it("refuses everyone once the global caps are hit, so cost stays bounded", async () => {
+    const { deps } = makeDeps();
+    underLimits();
+    vi.spyOn(photoRepo, "countPending").mockResolvedValue(300);
+    const put = vi.spyOn(photoStorageRepo, "put");
+
+    await expect(
+      photoService.upload(deps, {
+        image: jpeg(),
+        caption: null,
+        tribe: "other",
+        clientIp: "9.9.9.9",
+      }),
+    ).rejects.toMatchObject({ code: PHOTO_WALL_BUSY, status: 503 });
+    expect(put).not.toHaveBeenCalled();
+  });
+
+  it("checks the real bytes, not the declared type", async () => {
+    const { deps } = makeDeps();
+    underLimits();
+    const put = vi.spyOn(photoStorageRepo, "put");
+    const disguised = new File(["<html><script>alert(1)</script>"], "x.jpg", {
+      type: "image/jpeg",
+    });
+
+    await expect(
+      photoService.upload(deps, {
+        image: disguised,
+        caption: null,
+        tribe: "other",
+        clientIp: "1.1.1.1",
+      }),
+    ).rejects.toMatchObject({ code: PHOTO_UNSUPPORTED_TYPE, status: 415 });
+    expect(put).not.toHaveBeenCalled();
+
+    // A tiny file that claims a 20000px frame would exhaust the TV's memory.
+    await expect(
+      photoService.upload(deps, {
+        image: jpeg(20000, 20000),
+        caption: null,
+        tribe: "other",
+        clientIp: "1.1.1.1",
+      }),
+    ).rejects.toMatchObject({ code: PHOTO_DIMENSIONS_TOO_LARGE, status: 413 });
+    expect(put).not.toHaveBeenCalled();
+  });
+});
+
+describe("photoService.getImage", () => {
+  it("serves a pending image only through the admin page's signed link", async () => {
+    const { deps } = makeDeps();
+    const pending = row({ status: "pending", approvedAt: null });
+    vi.spyOn(photoRepo, "findById").mockResolvedValue(pending);
+    vi.spyOn(photoRepo, "findByStatus").mockResolvedValue([pending]);
+    vi.spyOn(photoStorageRepo, "get").mockResolvedValue({} as R2ObjectBody);
+
+    await expect(photoService.getImage(deps, pending.id, undefined)).rejects.toMatchObject({
+      code: PHOTO_NOT_FOUND,
+    });
+    await expect(photoService.getImage(deps, pending.id, "0".repeat(32))).rejects.toMatchObject({
+      code: PHOTO_NOT_FOUND,
+    });
+
+    const [listed] = await photoService.getPending(deps, 10);
+    const sig = new URL(listed?.imageUrl ?? "").searchParams.get("sig") ?? undefined;
+    await expect(photoService.getImage(deps, pending.id, sig)).resolves.toMatchObject({
+      approved: false,
+    });
+  });
+});
+
+describe("photoService.approve", () => {
+  it("approves a pending photo and broadcasts it to the wall", async () => {
+    const { deps, broadcast } = makeDeps();
+    vi.spyOn(photoRepo, "findById").mockResolvedValue(row({ status: "pending", approvedAt: null }));
+    vi.spyOn(photoRepo, "approve").mockResolvedValue(row());
+    vi.spyOn(photoRepo, "countApprovedByTribe").mockResolvedValue([
+      { tribe: "reactcon", value: 1 },
+    ]);
+
+    const photo = await photoService.approve(deps, row().id);
+
+    expect(photo.status).toBe("approved");
+    expect(broadcast).toHaveBeenCalledWith({
+      type: "photo.created",
+      photo,
+      stats: { total: 1, byTribe: { reactcon: 1 } },
+    });
+  });
+});
+
+describe("photoService.remove", () => {
+  it("requires the owner's delete token unless the caller is admin", async () => {
+    const { deps, broadcast } = makeDeps();
+    vi.spyOn(photoRepo, "findById").mockResolvedValue(row());
+    vi.spyOn(photoRepo, "setRemoved").mockResolvedValue();
+    vi.spyOn(photoRepo, "countApprovedByTribe").mockResolvedValue([]);
+    const del = vi.spyOn(photoStorageRepo, "delete").mockResolvedValue();
+    const id = row().id;
+
+    await expect(
+      photoService.remove(deps, { id, deleteToken: "wrong", isAdmin: false }),
+    ).rejects.toMatchObject({ code: PHOTO_DELETE_FORBIDDEN, status: 403 });
+    expect(del).not.toHaveBeenCalled();
+
+    await photoService.remove(deps, { id, isAdmin: true });
+    expect(del).toHaveBeenCalledWith(deps.bucket, "photos/x");
+    expect(broadcast).toHaveBeenCalledWith({
+      type: "photo.removed",
+      photoId: id,
+      stats: { total: 0, byTribe: {} },
+    });
+  });
+});

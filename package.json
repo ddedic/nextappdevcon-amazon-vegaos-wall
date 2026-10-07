@@ -1,0 +1,52 @@
+{
+  "name": "vegaos-demo",
+  "private": true,
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "api:dev": "pnpm --filter @vegaos-demo/api dev",
+    "api:deploy": "pnpm --filter @vegaos-demo/api run deploy",
+    "web:dev": "pnpm --filter @vegaos-demo/web dev",
+    "web:deploy": "pnpm --filter @vegaos-demo/web run deploy",
+    "tv:start": "pnpm --filter @vegaos-demo/tv start",
+    "tv:build:debug": "pnpm --filter @vegaos-demo/tv build:debug",
+    "tv:build:release": "pnpm --filter @vegaos-demo/tv build:release",
+    "tv:vvd:start": "pnpm --filter @vegaos-demo/tv vvd:start",
+    "tv:run:vvd": "pnpm --filter @vegaos-demo/tv run:vvd",
+    "tv:vvd:start:1080": "pnpm --filter @vegaos-demo/tv vvd:start:1080",
+    "tv:vvd:restart:1080": "pnpm --filter @vegaos-demo/tv vvd:restart:1080",
+    "prepare": "husky",
+    "postinstall": "node scripts/link-cf-delegates.mjs",
+    "remote": "node scripts/booth-remote.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^24.19.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "turbo": "^2.11.7",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yaml,yml}": "prettier --write"
+  }
+}

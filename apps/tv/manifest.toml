@@ -1,0 +1,40 @@
+schema-version = 1
+
+[package]
+title = "Live Wall - next.app devCon"
+version = "1.0.0"
+build-number = 3
+id = "com.ddedic.vegaosdemo"
+icon = "@image/app_icon.png"
+
+[os.version]
+min = "1.2"
+target = "1.2"
+
+[needs]
+[[needs.module]]
+id = "/com.amazon.vega.os@IVega_1_2"
+
+[[needs.module]]
+id = "/com.amazon.kepler.keplerscript_4@IKeplerScript_0"
+
+
+[components]
+[[components.interactive]]
+id = "com.ddedic.vegaosdemo.main"
+runtime-module = "/com.amazon.kepler.runtime.react_native_kepler_4@IReactNativeKepler_0"
+launch-type = "singleton"
+categories = ["com.amazon.category.main"]
+
+# Remote-control key events (D-pad, select, back). Input fails silently without this.
+[wants]
+[[wants.service]]
+id = "com.amazon.inputd.service"
+
+# Network reachability broadcasts (used by RN NetInfo/fetch); without these the OS
+# only grants access via a temporary exception list and logs access-control warnings.
+[[wants.service]]
+id = "com.amazon.network.service"
+
+[[wants.module]]
+id = "/com.amazon.kepler.net.net_manager@INetManager"

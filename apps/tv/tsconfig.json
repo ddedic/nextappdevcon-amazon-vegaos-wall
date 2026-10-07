@@ -1,0 +1,12 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    // Override "react-native" types from the base: Vega re-exports RN via react-native-kepler.
+    "types": ["jest", "@amazon-devices/react-native-kepler"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src", "index.js"]
+}
