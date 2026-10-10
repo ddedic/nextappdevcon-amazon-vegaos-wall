@@ -1,6 +1,20 @@
 # Building for Vega OS: notes from the field
 
-Vega OS is new, and a lot of what you need to know isn't written down yet. These are the things I ran into while building the Live Wall TV app with React Native for Vega (SDK 0.24, React Native 0.83) on an Apple Silicon Mac. Each one cost me some time; hopefully they save you some.
+Vega OS is new, and a lot of what you need to know isn't written down yet. These are the things I ran into while building the BoothWall TV app with React Native for Vega (SDK 0.24, React Native 0.83) on an Apple Silicon Mac. Each one cost me some time. If you find one that's missing or out of date, a pull request is very welcome.
+
+## At a glance
+
+| Topic                    | How BoothWall does it                                                                                                     | Where                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Remote input             | `useTVEventHandler` from `@amazon-devices/react-native-kepler`, acting on key up only (every press arrives twice)         | `apps/tv/src/platform/useVegaRemote.ts`                |
+| Kiosk-safe Back          | `BackHandler` closes the spotlight; on the wall a second Back within 2.5 s calls `exitApp()`, with an on-screen hint      | `features/wall/hooks/useWallRemote.ts`                 |
+| Layout                   | Everything is sized on a 960×540 dp canvas, which a 1080p TV draws at 2×                                                  | `theme/tokens.ts`, `features/wall/constants/layout.ts` |
+| Smooth motion on a Stick | Only `transform` and `opacity` animate, on the native driver; flat shadows on moving cards; 480 px thumbnails on the wall | `features/wall/components/`                            |
+| Realtime                 | A WebSocket with backoff, a connecting screen until the first snapshot, and a fresh snapshot on every reconnect           | `features/wall/hooks/useWallFeed.ts`                   |
+| Builds                   | The JavaScript is bundled into the `.vpkg`, so rebuild after a change; Metro alone doesn't update an installed app        | `apps/tv/package.json`                                 |
+| Testing without a TV     | The Virtual Device at 1080p, demo mode, and a laptop remote that sends real key presses through `inputd-cli`              | `scripts/remote/`                                      |
+
+Paths are relative to `packages/wall-ui/src` unless they start with `apps/` or `scripts/`. The rest of this page is the gotchas behind these.
 
 ## Setup
 
@@ -29,6 +43,23 @@ Vega OS is new, and a lot of what you need to know isn't written down yet. These
 - **Don't remount an image to animate it out.** A new component means a new image load and an empty frame. Keep the same instance while it fades.
 - **Build Animated nodes once.** Recreating `interpolate` and `add` nodes on every render makes native-driven motion jump. `useMemo` them, and memoize image `source` objects too.
 - **zod v4 needs one Babel plugin.** It ships `export * as ns` syntax that the React Native preset doesn't transform. Add `@babel/plugin-transform-export-namespace-from`.
+
+## Performance on Vega OS
+
+The current Vega OS sticks (Fire TV Stick 4K Select, Stick HD and Stick 4K 3rd gen) share the same budget: four Cortex-A55 cores at up to 1.7 GHz, a Mali G310 GPU and 1 GB of RAM ([device specs](https://developer.amazon.com/docs/device-specs/device-specifications-fire-tv-streaming-media-player.html)). Amazon's targets are foreground memory under 400 MiB (the platform enforces 420 MB) and UI fluidity above 99% ([app KPIs](https://developer.amazon.com/docs/vega/0.24/measure-app-kpis.html), [FAQ](https://developer.amazon.com/docs/vega/0.24/faq.html)). What that meant for the wall:
+
+- **Decode images at the size you draw them.** A wall card is about 210 px wide at 1080p, but uploads are 1080 px, so every card decoded about 27 times the pixels it showed. The phone now uploads a 480 px thumbnail next to the original. Wall cards use `thumbUrl`, and only the spotlight loads `imageUrl`. Vega's `Image` caches natively, so there's no extra image library ([best practices](https://developer.amazon.com/docs/vega/0.24/best_practices.html)).
+- **Ship the backdrop at canvas size.** The backdrop is 960×540 with its dimming baked in, so there's one opaque full-screen layer instead of a 1080p image under a translucent scrim.
+- **No blurred shadows on moving things.** Eleven drifting cards each had a 12 dp shadow. Wall cards now sit on a flat offset plate, and only the lifted card and the spotlight card get a real shadow. The focus ring is a white border plus a flat brand-coloured halo, not a glow.
+- **Animate as little as possible.** The drift only moves cards up and down (rotation is fixed), runs on the native driver, and stops for a card that's hidden under its lifted copy.
+- **Fewer translucent panels.** The now-showing strip is plain text and a 2 dp line on the backdrop, with no bordered box behind it.
+- **Reconnect politely.** The WebSocket backoff has jitter and only resets once the server sends something, so a socket that opens and drops straight away doesn't retry every second.
+- **Tilted cards need a texture.** A rotated view on Vega draws with hard, stair-stepped edges. `renderToHardwareTextureAndroid` on the tilted card draws it once into a texture, which gets filtered edges and is cheaper to move. The soft shadow under each card is two faint, slightly larger rounded rects, not a blur.
+- **Long runs.** A booth leaves the wall on all day. Two leaks would have grown without limit: the simulated feed kept every photo, and a card replaced before its "new" badge settled stayed in the fresh list forever. Both are capped now. A socket that dies silently, for example after the TV sleeps, is dropped after two missed pongs. An error boundary shows "Restarting the wall…" and remounts instead of leaving a red or blank screen.
+- **Image cache.** Vega exposes `Image.prefetch`, `queryCache` and `abortPrefetch`, but no way to clear the cache. The wall prefetches the next full-size photo shortly before the spotlight needs it, and retries a failed load twice before showing the placeholder.
+- **Don't add image variants the demo doesn't need.** 320 px wall copies of the demo photos measured worse: the demo cycles through few enough photos that both sizes end up decoded and cached. Real uploads still get the 480 px thumbnail.
+
+**Measuring.** `vega exec perf doctor --app-name=<id>` checks your setup. `vega exec perf memory-monitor --app-name=<id>` prints RSS/USS/PSS over time, and it works on the Virtual Device. UI fluidity (`vega exec perf kpi-visualizer --kpi ui-fluidity`) needs Appium, and its numbers only mean something on a real stick ([performance CLI](https://developer.amazon.com/docs/vega/0.24/performance-cli.html)). To find overdraw, launch with `SHOW_OVERDRAWN=true` from Vega Studio ([overdraw](https://developer.amazon.com/docs/vega/0.24/detect-overdraw.html)). On the Virtual Device with a debug build in demo mode, these changes took the wall's average PSS from about 277 MiB to about 190 MiB. Those are single runs, so treat them as a rough guide, and expect different absolute numbers on a stick. A 22-minute soak of the release build in demo mode climbed to about 200–230 MiB in the first five minutes while the image cache filled, then grew by about 0.3 MiB a minute, the same before and after this pass. If that slope held for eight hours, it would end near 370 MiB, close to the 400 MiB budget. It may well flatten as garbage collection catches up, but run a longer soak on a real stick before an event.
 
 ## Debugging
 
