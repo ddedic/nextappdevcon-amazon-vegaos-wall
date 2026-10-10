@@ -1,5 +1,10 @@
+import { WallErrorBoundary, WallScreen } from "@boothwall/wall-ui";
 import React from "react";
 
-import { WallScreen } from "@/features/wall";
+import { useVegaRemote } from "@/platform/useVegaRemote";
 
-export const App = () => <WallScreen />;
+export const App = () => (
+  <WallErrorBoundary>
+    <WallScreen useRemoteInput={useVegaRemote} />
+  </WallErrorBoundary>
+);

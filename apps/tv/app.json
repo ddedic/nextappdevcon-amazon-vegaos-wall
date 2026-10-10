@@ -1,5 +1,5 @@
 {
   "//": "name must equal the manifest interactive component id (KRL-compatible)",
-  "name": "com.ddedic.vegaosdemo.main",
-  "displayName": "Live Wall - next.app devCon"
+  "name": "com.boothwall.app.main",
+  "displayName": "BoothWall"
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@vegaos-demo/tv",
+  "name": "@boothwall/tv",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -11,15 +11,14 @@
     "vvd:stop": "vega virtual-device stop",
     "vvd:start:1080": "vega virtual-device start --display-res=1920,1080",
     "vvd:restart:1080": "(vega virtual-device stop >/dev/null 2>&1 || true) && pnpm vvd:start:1080 && pnpm run:vvd",
-    "run:vvd": "vega run-app build/aarch64-debug/tv_aarch64.vpkg com.ddedic.vegaosdemo.main -d VirtualDevice",
+    "run:vvd": "vega run-app build/aarch64-debug/tv_aarch64.vpkg com.boothwall.app.main -d VirtualDevice",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "eslint src",
-    "test": "jest"
+    "lint": "eslint src"
   },
   "dependencies": {
     "@amazon-devices/react-native-kepler": "~4.0.0",
-    "@vegaos-demo/shared": "workspace:*",
-    "qrcode-generator": "^2.0.4",
+    "@boothwall/shared": "workspace:*",
+    "@boothwall/wall-ui": "workspace:*",
     "react": "19.2.0",
     "react-native": "0.83.0"
   },
@@ -30,16 +29,12 @@
     "@react-native/babel-preset": "0.83.0",
     "@react-native/metro-config": "0.83.0",
     "@react-native/typescript-config": "0.83.0",
-    "@types/jest": "^29.5.14",
     "@types/react": "^19.2.0",
-    "babel-jest": "^29.7.0",
-    "babel-plugin-module-resolver": "^5.0.3",
-    "jest": "^29.7.0",
-    "react-test-renderer": "19.2.0"
+    "babel-plugin-module-resolver": "^5.0.3"
   },
   "kepler": {
     "projectType": "application",
-    "appName": "vegaosdemo",
+    "appName": "boothwall",
     "targets": [
       "tv"
     ]

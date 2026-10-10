@@ -1,0 +1,9 @@
+{
+  "preset": "react-native",
+  "testRegex": "/src/.*\\.test\\.(ts|tsx)$",
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+  "roots": ["<rootDir>/src/"],
+  "collectCoverage": false,
+  "collectCoverageFrom": ["src/**/*", "!**/index.{ts,js,tsx}", "!**/types.ts", "!src/**/*.d.ts"],
+  "coverageDirectory": ".tmp/coverage"
+}
