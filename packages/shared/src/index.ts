@@ -1,4 +1,27 @@
-export { EVENT } from "./wall/event";
+import { boothwallConfig } from "./config/boothwall.config";
+import { boothwallConfigSchema } from "./config/boothwall.schema";
+
+// Fail the build, not the booth: every app imports this package, so a broken config throws.
+boothwallConfigSchema.parse(boothwallConfig);
+
+export { boothwallConfig };
+export { type BoothwallConfig, boothwallConfigSchema } from "./config/boothwall.schema";
+export { contrast, readableOn, textOn, withAlpha } from "./config/color";
+export { EVENT, SHOWCASE_LABEL } from "./config/event";
+export {
+  PHOTO_PAGE_MAX,
+  type PhotoListQuery,
+  photoListQuerySchema,
+  type PhotoPageDTO,
+  photoPageSchema,
+  type PhotoPatch,
+  photoPatchSchema,
+  type PhotoSort,
+  photoSortSchema,
+  type PhotoStatsDTO,
+  photoStatsQuerySchema,
+  photoStatsSchema,
+} from "./control/photo-control.schemas";
 export {
   captionSchema,
   PHOTO_LIMITS,
@@ -13,7 +36,7 @@ export {
   type WallStatsDTO,
   wallStatsSchema,
 } from "./wall/photo.schemas";
-export { type Tribe, TRIBES, tribeSchema } from "./wall/tribes";
+export { CATCH_ALL_TRIBE, type Tribe, TRIBES, tribeSchema } from "./wall/tribes";
 export {
   type RemoteCommand,
   remoteCommandSchema,

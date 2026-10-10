@@ -24,6 +24,4 @@ buildinfo.json
 
 # Local notes
 .dashboard/
-
-# Personal notes (launch plan etc.)
 .private/

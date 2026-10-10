@@ -29,7 +29,7 @@ export default tseslint.config(
       "simple-import-sort/exports": "error",
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "no-console": ["error", { allow: ["warn", "error"] }],
+      "no-console": ["error", { allow: ["info", "warn", "error"] }],
     },
   },
   {
@@ -45,8 +45,25 @@ export default tseslint.config(
     rules: { "no-console": "off" },
   },
   {
-    // React Native for Vega app: Jest (not Vitest) globals in tests.
-    files: ["apps/tv/**/*.test.{ts,tsx}"],
+    // The shared wall runs its tests with Jest (React Native preset), not Vitest.
+    files: ["packages/wall-ui/**/*.test.{ts,tsx}"],
     languageOptions: { globals: { ...globals.jest } },
+  },
+  {
+    // The shared wall also runs in the browser: Vega-only APIs belong in apps/tv.
+    files: ["packages/wall-ui/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@amazon-devices/*"],
+              message: "Keep Vega APIs in apps/tv and pass them in (see RemoteInputHook).",
+            },
+          ],
+        },
+      ],
+    },
   },
 );

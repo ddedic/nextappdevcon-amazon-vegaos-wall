@@ -1,5 +1,5 @@
 {
-  "name": "@vegaos-demo/tsconfig",
+  "name": "@boothwall/tsconfig",
   "version": "0.0.0",
   "private": true,
   "files": [

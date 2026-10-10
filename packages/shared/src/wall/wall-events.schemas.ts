@@ -11,6 +11,8 @@ export type RemoteCommand = z.infer<typeof remoteCommandSchema>;
 export const wallEventSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("photo.created"), photo: photoSchema, stats: wallStatsSchema }),
   z.object({ type: z.literal("photo.removed"), photoId: z.string(), stats: wallStatsSchema }),
+  /** A photo on the wall got a new caption or category; it keeps its place. */
+  z.object({ type: z.literal("photo.updated"), photo: photoSchema, stats: wallStatsSchema }),
   z.object({ type: z.literal("remote.command"), command: remoteCommandSchema }),
 ]);
 

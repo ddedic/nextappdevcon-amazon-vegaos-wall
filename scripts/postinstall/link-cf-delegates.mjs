@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 
-const root = join(dirname(new URL(import.meta.url).pathname), "..");
+const root = join(dirname(new URL(import.meta.url).pathname), "../..");
 const pkg = "@cloudflare/vite-plugin";
 const source = join(root, "node_modules", pkg);
 
