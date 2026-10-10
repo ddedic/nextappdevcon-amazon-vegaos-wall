@@ -1,5 +1,7 @@
 import type { Context } from "hono";
+import { createMiddleware } from "hono/factory";
 
+import { clientIp } from "@/core/http/client-ip";
 import type { AppEnv } from "@/core/http/http-context";
 import { createDb } from "@/db/client";
 import { adminGuardService } from "@/modules/auth/domain/admin-guard.service";
@@ -16,7 +18,7 @@ export function isAdmin(c: Context<AppEnv>): Promise<boolean> {
     db: createDb(c.env.DB),
     token: bearer(c),
     adminToken: c.get("config").ADMIN_TOKEN,
-    clientIp: c.req.header("cf-connecting-ip") ?? "unknown",
+    clientIp: clientIp(c),
     now: new Date(),
   });
 }
@@ -24,3 +26,9 @@ export function isAdmin(c: Context<AppEnv>): Promise<boolean> {
 export async function requireAdmin(c: Context<AppEnv>): Promise<void> {
   if (!(await isAdmin(c))) throw adminRequired();
 }
+
+/** Route middleware form of `requireAdmin`: checks the passcode before any input is parsed. */
+export const adminOnly = createMiddleware<AppEnv>(async (c, next) => {
+  await requireAdmin(c);
+  await next();
+});

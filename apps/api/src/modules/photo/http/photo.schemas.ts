@@ -1,4 +1,4 @@
-import { captionSchema, tribeSchema } from "@vegaos-demo/shared";
+import { captionSchema, tribeSchema } from "@boothwall/shared";
 import { z } from "zod";
 
 export const listPhotosQuerySchema = z.object({
@@ -14,7 +14,7 @@ export const uploadFieldsSchema = z.object({
 
 export const photoIdParamSchema = z.object({ id: z.uuid() });
 
-/** `sig` signs links to pending images for the admin page. */
+/** `sig` signs links to pending and hidden images for the Control panel. */
 export const imageQuerySchema = z.object({
   sig: z
     .string()

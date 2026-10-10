@@ -1,0 +1,1 @@
+ALTER TABLE `photos` ADD `keep` integer DEFAULT false NOT NULL;

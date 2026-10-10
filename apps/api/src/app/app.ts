@@ -22,7 +22,7 @@ export const app = new Hono<AppEnv>()
   .use((c, next) =>
     cors({
       origin: c.get("config").ALLOWED_ORIGINS,
-      allowMethods: ["GET", "POST", "DELETE"],
+      allowMethods: ["GET", "POST", "PATCH", "DELETE"],
       allowHeaders: ["authorization", "content-type", "x-delete-token"],
     })(c, next),
   )

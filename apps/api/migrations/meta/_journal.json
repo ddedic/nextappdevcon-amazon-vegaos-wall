@@ -22,6 +22,27 @@
       "when": 1791414935454,
       "tag": "0002_admin_lockout",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791613787490,
+      "tag": "0003_thumbnails",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791624614487,
+      "tag": "0004_hidden_photos",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791635327127,
+      "tag": "0005_keep_photos",
+      "breakpoints": true
     }
   ]
 }

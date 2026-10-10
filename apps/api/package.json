@@ -1,5 +1,5 @@
 {
-  "name": "@vegaos-demo/api",
+  "name": "@boothwall/api",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,12 +11,12 @@
     "lint": "eslint src",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "cf d1 migrations apply bd5f5d9b-5315-4a61-a081-7aeba8cd5f69 --local --dir migrations",
-    "db:migrate:remote": "cf d1 migrations apply bd5f5d9b-5315-4a61-a081-7aeba8cd5f69 --dir migrations"
+    "db:migrate:local": "node ../../scripts/boothwall/index.mjs migrate --local",
+    "db:migrate:remote": "node ../../scripts/boothwall/index.mjs migrate"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.9.1",
-    "@vegaos-demo/shared": "workspace:*",
+    "@boothwall/shared": "workspace:*",
     "drizzle-orm": "^0.45.0",
     "hono": "^4.13.13",
     "zod": "^4.6.5"
@@ -24,7 +24,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-beta.sha-52b0dc0e9",
     "@cloudflare/workers-types": "^5.20261007.1",
-    "@vegaos-demo/tsconfig": "workspace:*",
+    "@boothwall/tsconfig": "workspace:*",
     "cf": "^1.0.0-beta.12",
     "drizzle-kit": "^0.31.0",
     "vite": "^8.3.0",

@@ -1,4 +1,4 @@
-import { app } from "@/app";
+import { app } from "@/app/app";
 import type { AppBindings } from "@/core/runtime/bindings";
 import { purgeExpiredPhotos } from "@/jobs/purge-expired-photos";
 

@@ -12,5 +12,5 @@ export async function purgeExpiredPhotos(env: AppBindings): Promise<void> {
     { retentionDays: readConfig(env).RETENTION_DAYS },
   );
   await adminGuardService.purge(db, new Date());
-  console.warn(`purge-expired-photos: removed ${purged} photo(s)`);
+  console.info(`purge-expired-photos: removed ${purged} photo(s)`);
 }

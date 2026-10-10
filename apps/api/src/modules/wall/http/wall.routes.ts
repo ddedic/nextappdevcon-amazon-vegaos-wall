@@ -1,5 +1,5 @@
+import { remoteCommandSchema } from "@boothwall/shared";
 import { zValidator } from "@hono/zod-validator";
-import { remoteCommandSchema } from "@vegaos-demo/shared";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";

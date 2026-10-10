@@ -19,7 +19,7 @@ describe("image header checks", () => {
     const jpg = image("tv-wall.jpg");
     const png = image("social-preview.png");
     expect(sniffImageType(jpg)).toBe("image/jpeg");
-    expect(readImageSize(jpg, "image/jpeg")).toEqual({ width: 1600, height: 891 });
+    expect(readImageSize(jpg, "image/jpeg")).toEqual({ width: 1600, height: 900 });
     expect(sniffImageType(png)).toBe("image/png");
     expect(readImageSize(png, "image/png")).toEqual({ width: 1280, height: 640 });
   });

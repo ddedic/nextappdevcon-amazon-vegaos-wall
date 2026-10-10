@@ -1,4 +1,4 @@
-import type { WallEvent } from "@vegaos-demo/shared";
+import type { WallEvent } from "@boothwall/shared";
 
 import type { WallRoom } from "@/modules/wall/realtime/wall.room";
 

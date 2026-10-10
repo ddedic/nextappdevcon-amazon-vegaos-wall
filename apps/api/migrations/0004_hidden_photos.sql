@@ -1,0 +1,1 @@
+CREATE INDEX `photos_tribe_created_at_idx` ON `photos` (`tribe`,`created_at`);

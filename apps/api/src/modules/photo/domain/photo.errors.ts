@@ -1,4 +1,5 @@
 import {
+  badRequest,
   forbidden,
   notFound,
   payloadTooLarge,
@@ -15,6 +16,7 @@ export const PHOTO_UNSUPPORTED_TYPE = "PHOTO_UNSUPPORTED_TYPE" as const;
 export const PHOTO_RATE_LIMITED = "PHOTO_RATE_LIMITED" as const;
 export const PHOTO_WALL_BUSY = "PHOTO_WALL_BUSY" as const;
 export const PHOTO_HOTLINK_FORBIDDEN = "PHOTO_HOTLINK_FORBIDDEN" as const;
+export const PHOTO_CURSOR_INVALID = "PHOTO_CURSOR_INVALID" as const;
 
 export const photoNotFound = (details: { id: string }) =>
   notFound(PHOTO_NOT_FOUND, details, "photo.notFound");
@@ -40,3 +42,7 @@ export const photoHotlinkForbidden = () =>
 
 export const photoTooBig = (details: { width: number; height: number; maxEdgePx: number }) =>
   payloadTooLarge(PHOTO_DIMENSIONS_TOO_LARGE, details, "photo.dimensionsTooLarge");
+
+/** A list cursor that wasn't issued for this sort (or was tampered with). */
+export const photoCursorInvalid = () =>
+  badRequest(PHOTO_CURSOR_INVALID, undefined, "photo.cursorInvalid");
