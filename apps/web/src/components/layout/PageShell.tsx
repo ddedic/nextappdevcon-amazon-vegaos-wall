@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import glow from "@/assets/brand/brand-glow.jpg";
+import glow from "@/assets/brand/glow.jpg";
 
 import { BrandHeader } from "./BrandHeader";
 import { SourceFooter } from "./SourceFooter";
@@ -12,7 +12,7 @@ export type PageShellProps = {
 
 export function PageShell({ children, onHome }: PageShellProps) {
   return (
-    <div className="relative min-h-dvh overflow-x-hidden">
+    <div className="relative min-h-dvh overflow-x-clip">
       <img
         src={glow}
         alt=""

@@ -1,5 +1,7 @@
+import { boothwallConfig, EVENT } from "@boothwall/shared";
+
 export const appConfig = {
-  apiBaseUrl: import.meta.env.VITE_API_URL ?? "https://nextapp-wall-api.dedic.dev",
-  retentionDays: 14,
-  venue: "CITYCUBE Berlin",
+  apiBaseUrl: import.meta.env.VITE_API_URL ?? boothwallConfig.urls.api,
+  retentionDays: boothwallConfig.retentionDays,
+  venue: EVENT.venue,
 } as const;

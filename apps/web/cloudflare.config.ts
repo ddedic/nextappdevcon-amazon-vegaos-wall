@@ -1,11 +1,15 @@
 import { defineConfig } from "cf/config";
 
-/** Static SPA (no server code): the phone capture page and the booth admin page. */
+import { boothwallConfig } from "../../packages/shared/src/config/boothwall.config.ts";
+
+const { deploy } = boothwallConfig;
+
+/** Static SPA (no server code): the web wall, the upload page and the booth's Control panel. */
 export default defineConfig({
   worker: {
-    name: "nextapp-wall",
+    name: deploy.name,
     compatibilityDate: "2026-09-25",
-    domains: ["nextapp-wall.dedic.dev"],
+    ...(deploy.webDomain ? { domains: [deploy.webDomain] } : { workersDev: true }),
     assets: { notFoundHandling: "single-page-application" },
   },
 });

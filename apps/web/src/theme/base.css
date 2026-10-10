@@ -13,8 +13,8 @@
   }
 
   ::selection {
-    background: var(--u-pink);
-    color: var(--u-ink-inverse);
+    background: var(--u-primary);
+    color: var(--u-on-primary);
   }
 
   @media (prefers-reduced-motion: reduce) {

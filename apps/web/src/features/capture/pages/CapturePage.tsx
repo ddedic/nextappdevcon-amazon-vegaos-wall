@@ -1,7 +1,7 @@
 import { PageShell } from "@/components/layout/PageShell";
-import { ComposeForm } from "@/features/capture/components/ComposeForm";
-import { PhotoPicker } from "@/features/capture/components/PhotoPicker";
-import { SuccessView } from "@/features/capture/components/SuccessView";
+import { ComposeForm } from "@/features/capture/components/compose/ComposeForm";
+import { PhotoPicker } from "@/features/capture/components/compose/PhotoPicker";
+import { SuccessView } from "@/features/capture/components/success/SuccessView";
 import { captureCopy } from "@/features/capture/constants/copy";
 import { useCapture } from "@/features/capture/hooks/useCapture";
 
@@ -13,10 +13,10 @@ export function CapturePage() {
     <PageShell onHome={capture.reset}>
       {step === "pick" && (
         <section className="mt-14 mb-10">
-          <p className="mb-3 text-xs font-bold tracking-[0.18em] text-pink uppercase">
+          <p className="mb-3 text-xs font-bold tracking-eyebrow text-primary-text uppercase">
             {captureCopy.eyebrow}
           </p>
-          <h1 className="text-5xl leading-[1.02] font-bold tracking-tight">{captureCopy.title}</h1>
+          <h1 className="text-5xl leading-display font-bold tracking-tight">{captureCopy.title}</h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-muted">{captureCopy.intro}</p>
         </section>
       )}
@@ -25,7 +25,7 @@ export function CapturePage() {
       {error && (
         <p
           role="alert"
-          className="mb-5 rounded-control border border-pink/40 bg-pink/10 p-3.5 text-sm text-ink"
+          className="mb-5 rounded-control border border-primary/40 bg-primary/10 p-3.5 text-sm text-ink"
         >
           {error}
         </p>
@@ -38,7 +38,7 @@ export function CapturePage() {
               key={item.title}
               className="flex items-center gap-4 rounded-card border border-line bg-surface p-4 backdrop-blur"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-pill bg-linear-to-br from-pink to-blue text-sm font-bold">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-pill bg-primary/15 text-sm font-bold text-primary-text ring-1 ring-primary/30">
                 {index + 1}
               </span>
               <span className="flex flex-col">
@@ -68,7 +68,7 @@ export function CapturePage() {
           canSubmit={capture.canSubmit}
           sending={step === "sending"}
           onSubmit={capture.submit}
-          onRetake={capture.reset}
+          onRetake={capture.retake}
         />
       )}
 

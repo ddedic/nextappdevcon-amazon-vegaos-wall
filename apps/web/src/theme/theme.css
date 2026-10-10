@@ -9,9 +9,11 @@
   --color-ink-muted: var(--u-ink-muted);
   --color-ink-subtle: var(--u-ink-subtle);
   --color-ink-inverse: var(--u-ink-inverse);
-  --color-pink: var(--u-pink);
-  --color-blue: var(--u-blue);
-  --color-violet: var(--u-violet);
+  --color-primary: var(--u-primary);
+  --color-primary-text: var(--u-primary-text);
+  --color-on-primary: var(--u-on-primary);
+  --color-secondary: var(--u-secondary);
+  --color-tertiary: var(--u-tertiary);
   --color-success: var(--u-success);
   --color-danger: var(--u-danger);
   --color-paper: var(--u-paper);
@@ -24,6 +26,16 @@
   --radius-control: var(--u-radius-control);
   --radius-card: var(--u-radius-card);
   --radius-pill: var(--u-radius-pill);
+  --radius-paper: var(--u-radius-paper);
+  --radius-photo: var(--u-radius-photo);
+
+  --text-2xs: var(--u-text-2xs);
+
+  --tracking-caps: var(--u-tracking-caps);
+  --tracking-eyebrow: var(--u-tracking-eyebrow);
+  --tracking-code: var(--u-tracking-code);
+
+  --leading-display: var(--u-leading-display);
 
   --shadow-*: initial;
   --shadow-glow: var(--u-shadow-glow);

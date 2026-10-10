@@ -1,20 +1,35 @@
-import { PHOTO_LIMITS } from "@vegaos-demo/shared";
+import { PHOTO_LIMITS } from "@boothwall/shared";
 
-/** ~1080px JPEG before upload, EXIF orientation applied. */
-export async function resizeImage(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-  const scale = Math.min(1, PHOTO_LIMITS.maxEdgePx / Math.max(bitmap.width, bitmap.height));
+export type ResizedImage = { image: Blob; thumb: Blob };
+
+/** Draws the bitmap with its longest edge at most `maxEdgePx` and encodes it as JPEG. */
+function encodeJpeg(bitmap: ImageBitmap, maxEdgePx: number, quality: number): Promise<Blob> {
+  const scale = Math.min(1, maxEdgePx / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(bitmap.width * scale);
   canvas.height = Math.round(bitmap.height * scale);
   canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
 
   return new Promise((resolve, reject) =>
     canvas.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("Could not encode the photo."))),
       "image/jpeg",
-      0.85,
+      quality,
     ),
   );
+}
+
+/**
+ * ~1080px JPEG before upload, EXIF orientation applied, plus a 480px copy the wall
+ * cards decode instead of the full image.
+ */
+export async function resizeImage(file: File): Promise<ResizedImage> {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  try {
+    const image = await encodeJpeg(bitmap, PHOTO_LIMITS.maxEdgePx, 0.85);
+    const thumb = await encodeJpeg(bitmap, PHOTO_LIMITS.thumbEdgePx, 0.8);
+    return { image, thumb };
+  } finally {
+    bitmap.close();
+  }
 }

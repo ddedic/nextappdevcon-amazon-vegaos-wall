@@ -1,25 +1,28 @@
-import { EVENT } from "@vegaos-demo/shared";
+import { EVENT } from "@boothwall/shared";
 
 import { appConfig } from "@/app/app.config";
 
 export const captureCopy = {
-  eyebrow: `Live Wall · ${appConfig.venue}`,
+  eyebrow: appConfig.venue ? `Live wall · ${appConfig.venue}` : "Live wall",
   title: "Get on the wall.",
   intro: "Snap a photo and it shows up on the big Fire TV screen at the booth.",
   steps: [
     { title: "Snap", body: "Take a selfie or pick a photo." },
-    { title: "Tag", body: "Add a caption and your conference." },
+    { title: "Tag", body: "Add a caption and pick your crowd." },
     { title: "Shine", body: "Once the booth approves it, it floats onto the wall." },
   ],
   takePhoto: "Take a photo",
   pickPhoto: "Choose from gallery",
   retake: "Change photo",
+  previewAlt: "Your photo",
+  postedAlt: "Your photo on the wall",
   back: "Back",
   captionLabel: "Caption",
-  captionPlaceholder: "Say hi to Berlin 👋",
-  tribeLabel: "Which conference are you here for?",
+  captionPlaceholder: "Say hi to the booth 👋",
+  tribeLabel: "What brings you here?",
   consent: `I'm fine with this photo being shown on the public screen at the booth. It's deleted automatically after ${appConfig.retentionDays} days.`,
   submit: "Send to the wall",
+  submitHint: "Pick a category and tick the box to send.",
   sending: "Sending…",
   preparing: "Preparing photo…",
   successTitle: "Sent!",
@@ -27,6 +30,7 @@ export const captureCopy = {
   hashtag: EVENT.hashtag,
   another: "Add another photo",
   remove: "Remove my photo",
+  removing: "Removing…",
   removed: "Your photo was removed from the wall.",
   errors: {
     PHOTO_RATE_LIMITED: "Easy there! You've posted a lot — try again in a few minutes.",

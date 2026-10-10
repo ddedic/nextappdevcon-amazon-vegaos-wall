@@ -1,3 +1,4 @@
+import { boothwallConfig } from "@boothwall/shared";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -7,7 +8,10 @@ import { captureCopy } from "@/features/capture/constants/copy";
 import { CapturePage } from "./CapturePage";
 
 vi.mock("@/lib/resizeImage", () => ({
-  resizeImage: vi.fn(async () => new Blob(["x"], { type: "image/jpeg" })),
+  resizeImage: vi.fn(async () => ({
+    image: new Blob(["x"], { type: "image/jpeg" }),
+    thumb: new Blob(["t"], { type: "image/jpeg" }),
+  })),
 }));
 
 describe("CapturePage", () => {
@@ -26,7 +30,7 @@ describe("CapturePage", () => {
     })) as HTMLButtonElement;
     expect(send.disabled).toBe(true);
 
-    await user.click(screen.getByRole("radio", { name: "reactCon" }));
+    await user.click(screen.getByRole("radio", { name: boothwallConfig.categories[0].label }));
     expect(send.disabled).toBe(true);
 
     await user.click(screen.getByRole("checkbox"));

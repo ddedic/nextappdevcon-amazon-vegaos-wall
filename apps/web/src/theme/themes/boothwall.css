@@ -1,0 +1,36 @@
+/*
+ * BoothWall theme: neutral colours, fonts and radii. Brand colours (--u-primary,
+ * --u-secondary, --u-tertiary and their readable variants) come from boothwall.config.ts
+ * and are injected at build time by vite/plugins/boothwall.ts.
+ */
+:root {
+  --u-canvas: #000000;
+  --u-surface: rgb(255 255 255 / 0.06);
+  --u-surface-strong: rgb(255 255 255 / 0.12);
+  --u-line: rgb(255 255 255 / 0.14);
+  --u-ink: #ffffff;
+  --u-ink-muted: #c9ccda;
+  --u-ink-subtle: #8a8fa3;
+  --u-ink-inverse: #000000;
+  --u-success: #3ddc97;
+  --u-danger: #ff6b6b;
+  --u-paper: #fbfaf7;
+  --u-paper-ink: #1b1b22;
+
+  --u-font-sans: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --u-radius-control: 14px;
+  --u-radius-card: 22px;
+  --u-radius-pill: 999px;
+  --u-radius-paper: 6px;
+  --u-radius-photo: 3px;
+
+  --u-text-2xs: 0.625rem;
+  --u-tracking-caps: 0.12em;
+  --u-tracking-eyebrow: 0.18em;
+  --u-tracking-code: 0.5em;
+  --u-leading-display: 1.04;
+
+  --u-shadow-glow: 0 20px 60px -20px var(--u-primary-glow);
+  --u-shadow-paper: 0 24px 50px -18px rgb(0 0 0 / 0.75);
+}

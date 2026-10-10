@@ -1,3 +1,5 @@
+import { SHOWCASE_LABEL } from "@boothwall/shared";
+
 import { REPO_URL } from "@/lib/links";
 
 export function DemoChip() {
@@ -6,10 +8,10 @@ export function DemoChip() {
       href={REPO_URL}
       target="_blank"
       rel="noreferrer"
-      aria-label="Amazon Vega OS showcase, source on GitHub"
-      className="rounded-pill bg-pink px-2.5 py-1 text-[10px] font-extrabold tracking-[0.12em] text-ink-inverse uppercase transition hover:brightness-110"
+      aria-label={`${SHOWCASE_LABEL}, source on GitHub`}
+      className="shrink-0 rounded-pill bg-primary px-2.5 py-1 whitespace-nowrap text-2xs font-extrabold tracking-caps text-on-primary uppercase transition hover:brightness-110"
     >
-      Amazon Vega OS showcase
+      {SHOWCASE_LABEL}
     </a>
   );
 }

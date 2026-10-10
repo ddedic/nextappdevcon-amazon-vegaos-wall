@@ -1,13 +1,12 @@
-import type { PhotoDTO, Tribe } from "@vegaos-demo/shared";
+import type { PhotoDTO, Tribe } from "@boothwall/shared";
 import { useCallback, useEffect, useState } from "react";
 
 import { captureCopy } from "@/features/capture/constants/copy";
-import { myPhotos } from "@/features/capture/data/myPhotos";
 import { removeOwnPhoto, uploadPhoto } from "@/features/capture/data/uploadPhoto";
 import { ApiError } from "@/lib/api";
 import { resizeImage } from "@/lib/resizeImage";
 
-type Draft = { image: Blob; previewUrl: string };
+type Draft = { image: Blob; thumb: Blob; previewUrl: string };
 type Posted = { photo: PhotoDTO; deleteToken: string; previewUrl: string };
 
 export type CaptureStep = "pick" | "compose" | "sending" | "done" | "removed";
@@ -38,8 +37,8 @@ export function useCapture() {
     setError(null);
     setBusy(true);
     try {
-      const image = await resizeImage(file);
-      setDraft({ image, previewUrl: URL.createObjectURL(image) });
+      const { image, thumb } = await resizeImage(file);
+      setDraft({ image, thumb, previewUrl: URL.createObjectURL(image) });
       setStep("compose");
     } catch {
       setError(captureCopy.errors.DECODE);
@@ -53,8 +52,12 @@ export function useCapture() {
     setError(null);
     setStep("sending");
     try {
-      const { photo, deleteToken } = await uploadPhoto({ image: draft.image, caption, tribe });
-      myPhotos.remember({ id: photo.id, deleteToken });
+      const { photo, deleteToken } = await uploadPhoto({
+        image: draft.image,
+        thumb: draft.thumb,
+        caption,
+        tribe,
+      });
       setPosted({ photo, deleteToken, previewUrl: draft.previewUrl });
       setStep("done");
     } catch (err) {
@@ -68,7 +71,6 @@ export function useCapture() {
     setBusy(true);
     try {
       await removeOwnPhoto(posted.photo.id, posted.deleteToken);
-      myPhotos.forget(posted.photo.id);
       setStep("removed");
     } catch (err) {
       setError(messageFor(err));
@@ -76,6 +78,13 @@ export function useCapture() {
       setBusy(false);
     }
   }, [posted]);
+
+  /** Back to the picker for another photo; the caption, category and consent stay. */
+  const retake = useCallback(() => {
+    setDraft(null);
+    setError(null);
+    setStep("pick");
+  }, []);
 
   const reset = useCallback(() => {
     setDraft(null);
@@ -101,6 +110,7 @@ export function useCapture() {
     pickFile,
     submit,
     removePosted,
+    retake,
     reset,
   };
 }

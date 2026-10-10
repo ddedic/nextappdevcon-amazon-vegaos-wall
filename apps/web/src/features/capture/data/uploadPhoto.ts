@@ -1,16 +1,18 @@
-import { type Tribe, type UploadResultDTO, uploadResultSchema } from "@vegaos-demo/shared";
+import { type Tribe, type UploadResultDTO, uploadResultSchema } from "@boothwall/shared";
 
 import { apiFetch } from "@/lib/api";
 
-type UploadPhotoArgs = { image: Blob; caption: string; tribe: Tribe };
+type UploadPhotoArgs = { image: Blob; thumb: Blob; caption: string; tribe: Tribe };
 
 export async function uploadPhoto({
   image,
+  thumb,
   caption,
   tribe,
 }: UploadPhotoArgs): Promise<UploadResultDTO> {
   const form = new FormData();
   form.set("image", image, "photo.jpg");
+  form.set("thumb", thumb, "thumb.jpg");
   form.set("caption", caption);
   form.set("tribe", tribe);
   form.set("consent", "true");
