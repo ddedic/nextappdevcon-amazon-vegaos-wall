@@ -103,5 +103,5 @@ createServer(async (req, res) => {
   }
   res.writeHead(200, { "content-type": "text/html; charset=utf-8" }).end(page);
 }).listen(PORT, "127.0.0.1", () => {
-  console.warn(`Booth remote for ${DEVICE}: http://localhost:${PORT}`);
+  console.info(`Booth remote for ${DEVICE}: http://localhost:${PORT}`);
 });
